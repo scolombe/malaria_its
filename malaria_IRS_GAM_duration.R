@@ -1,7 +1,7 @@
 ###############################################################################
-# Duration of the effect of IRS interventions on malaria incidence (Kinshasa)
+# Duration of the effect of IRS interventions on malaria incidence 
 #
-# Method (see manuscript, Methods):
+# Method:
 #   1. Fit a generalized additive model (GAM; mgcv) of weekly malaria incidence
 #      (cases per 100,000 population) as a
 #      function of year, annual and semi-annual harmonic seasonal terms, and a
@@ -12,7 +12,7 @@
 #      includes zero, i.e. the intervention no longer has an active effect.
 #   5. Report the start, midpoint and end of each plateau in months.
 #
-# Input : data/Palu_hebdo_analyse_p_FINAL_Kin.csv (weekly surveillance data)
+# Input : weekly surveillance data
 # Output: diagnostic plots, derivative plots, smooth plots with plateau,
 #         and a summary table of plateau timing (months).
 ###############################################################################
@@ -38,11 +38,7 @@ weeks_to_months <- function(x) round(x / 4.345, 1)
 
 # ---- 1. Import and prepare data ---------------------------------------------
 
-datapalu <- read.csv("data/Palu_hebdo_analyse_p_FINAL_Kin.csv")
-
-# Impute missing weekly case counts in Kinshasa with the mean of the two
-# adjacent weeks (3872 and 3691 cases)
-datapalu$Kin.DSNIS[is.na(datapalu$Kin.DSNIS)] <- (3872 + 3691) / 2
+datapalu <- "xxx"
 
 # Incidence per 100,000 population
 datapalu$KinInc100k <- (datapalu$Kin.DSNIS / datapalu$DenomKin) * 100000
@@ -66,13 +62,6 @@ datapalukin$cos52 <- cos(2 * pi * datapalukin$Date / 52)
 datapalukin$sin26 <- sin(2 * pi * datapalukin$Date / 26)
 datapalukin$cos26 <- cos(2 * pi * datapalukin$Date / 26)
 
-# Exclude the weeks during which IRS was being implemented
-# (coded NA in the IRS indicator variables)
-datapalukin_model <- subset(datapalukin,
-                            !is.na(IRS2019sep) &
-                            !is.na(IRS2020sep) &
-                            !is.na(IRS2021sep))
-
 
 # ---- 2. Fit the GAM ---------------------------------------------------------
 # TimeI1, TimeI2, TimeI3 = weeks since each IRS intervention (time indices)
@@ -83,14 +72,14 @@ gam_mod_KIN <- gam(
     sin52 + cos52 +            # annual seasonality
     sin26 + cos26 +            # semi-annual seasonality
     s(TimeI1) + s(TimeI2) + s(TimeI3),
-  data = datapalukin_model
+  data = datapalukin
 )
 
 # Alternative (count model with population offset; effects on log-incidence scale):
 # gam_mod_KIN <- gam(
 #   Kin.DSNIS ~ s(year, k = 1) + sin52 + cos52 + sin26 + cos26 +
 #     s(TimeI1) + s(TimeI2) + s(TimeI3) + offset(log(DenomKin / 100000)),
-#   family = nb(), data = datapalukin_model
+#   family = nb(), data = datapalukin
 # )
 
 summary(gam_mod_KIN)
