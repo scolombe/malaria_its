@@ -53,7 +53,7 @@ add_harmonics <- function(df, time, periods) {
 }
 
 # 4. Import and prepare data ---------------------------------------------------
-data_file <- "data/Palu_hebdo_analyse_p_FINAL_Ryansoro.csv"
+data_file <- "xxx"
 raw <- read.csv(data_file)
 
 rya <- raw %>%
